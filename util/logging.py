@@ -23,4 +23,5 @@ def setup_global_logging(logging_level: int):
 
     logging.getLogger("spade").setLevel(logging.INFO)
     logging.getLogger("spade.Agent").setLevel(logging.ERROR)
+    logging.getLogger("spade.behaviour").setLevel(logging.ERROR)
     logging.getLogger("slixmpp").setLevel(logging.ERROR)

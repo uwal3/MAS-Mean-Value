@@ -32,6 +32,8 @@ async def main():
         if not i:
             agent.is_reporter = True
         agents.append(agent)
+
+        logger.info(f"new node with value of {node['value']}")
         await agent.start()
 
     while any([agent.is_alive() for agent in agents]):
