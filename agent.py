@@ -8,9 +8,9 @@ from spade.behaviour import OneShotBehaviour, PeriodicBehaviour
 from spade.message import Message
 
 
-class MessageType:
-    TERMINATION = "term"
-    VALUE_UPDATE = "val"
+class Performative:
+    REQUEST = "request"
+    INFORM = "inform"
 
 
 class Cost(Enum):
@@ -30,9 +30,9 @@ class ConsensusAgent(Agent):
             new_value = 0
             msg = await self.receive()
             while msg:
-                # if termination signal received echo it to everyone
-                if msg.get_metadata("type") == MessageType.TERMINATION:
-                    await self._broadcast_termination(excluded=msg.sender.jid)
+                # if a request is received, echo it to everyone
+                if msg.get_metadata("performative") == Performative.REQUEST:
+                    await self._broadcast_request(excluded=msg.sender.jid)
                     self.kill()
                     return
 
@@ -43,10 +43,10 @@ class ConsensusAgent(Agent):
             new_value = self.agent.value + self.agent.alpha * new_value
 
             if self.agent.is_reporter and await self._check_convergence(new_value):
-                await self._broadcast_termination()
+                await self._broadcast_request()
 
                 message = Message(to=self.agent.center_agent)
-                message.set_metadata("type", MessageType.VALUE_UPDATE)
+                message.set_metadata("performative", Performative.INFORM)
                 message.body = f"{new_value}"
                 await self.send(message)
 
@@ -77,19 +77,19 @@ class ConsensusAgent(Agent):
                 self.agent.stable_ticks = 0
             return self.agent.stable_ticks >= 3
 
-        async def _broadcast_termination(self, excluded=None):
+        async def _broadcast_request(self, excluded=None):
             for recipient in self.agent.recipients:
                 if recipient == excluded:
                     continue
                 message = Message(to=recipient)
-                message.set_metadata("type", MessageType.TERMINATION)
+                message.set_metadata("performative", Performative.REQUEST)
                 await self.send(message)
 
         async def _broadcast_value(self, value: float):
             for recipient in self.agent.recipients:
                 message = Message(to=recipient)
                 message.body = f"{value}"
-                message.set_metadata("type", MessageType.VALUE_UPDATE)
+                message.set_metadata("performative", Performative.INFORM)
                 await self.send(message)
             self.agent.logger.debug(
                 f"agent {self.agent.jid} published the new value of {value}"
@@ -138,7 +138,7 @@ class CenterAgent(Agent):
             while not msg:
                 msg = await self.receive(1)
 
-            if msg.get_metadata("type") == MessageType.VALUE_UPDATE:
+            if msg.get_metadata("performative") == Performative.INFORM:
                 value = float(msg.body)  # type: ignore
                 self.agent.logger.debug(f"received value: {value}")
                 if self.agent.callback:
