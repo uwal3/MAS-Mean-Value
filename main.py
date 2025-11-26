@@ -12,12 +12,12 @@ setup_global_logging(logging.DEBUG)
 
 
 async def main():
-    logger = logging.getLogger(__name__)
 
     N_AGENTS = 4
 
     topology = generate_ring_topology(N_AGENTS)
 
+    logger = logging.getLogger(__name__)
     start_at = datetime.now() + timedelta(seconds=3)
 
     agents = []
@@ -39,9 +39,11 @@ async def main():
     while any([agent.is_alive() for agent in agents]):
         await asyncio.sleep(0.25)
 
+    total_cost = sum([agent.total_cost for agent in agents])
     for agent in agents:
-        logger.info(f"agent {agent.jid} finished: {agent.value=}, {agent.total_cost=}")
-        await agent.stop()
+        logger.info(f"{agent.jid} finished: {agent.value=}")
+
+    logger.info(f"total cost: {total_cost}")
 
 
 if __name__ == "__main__":
