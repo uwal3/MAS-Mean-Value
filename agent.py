@@ -75,7 +75,7 @@ class ConsensusAgent(Agent):
                 self.agent.stable_ticks += 1
             else:
                 self.agent.stable_ticks = 0
-            return self.agent.stable_ticks >= 3
+            return self.agent.stable_ticks >= self.agent.min_stable_ticks
 
         async def _broadcast_request(self, excluded=None):
             for recipient in self.agent.recipients:
@@ -104,6 +104,7 @@ class ConsensusAgent(Agent):
         start_at: datetime,
         is_reporter: bool = False,
         epsilon: float = 1e-2,
+        min_stable_ticks: int = 3,
     ):
         super().__init__(jid, "password", 5222, False)
 
@@ -111,6 +112,7 @@ class ConsensusAgent(Agent):
         self.recipients = recipients
         self.center_agent = center_agent
         self.start_at = start_at
+        self.min_stable_ticks = min_stable_ticks
         self.stable_ticks = 0
         self.is_reporter = is_reporter
 

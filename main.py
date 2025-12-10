@@ -10,7 +10,7 @@ from agent import CenterAgent, ConsensusAgent
 from util.logging import setup_global_logging
 from util.topology import generate_full_topology, generate_ring_topology
 
-setup_global_logging(logging.INFO)
+setup_global_logging(logging.DEBUG)
 
 file_cfg = OmegaConf.load("./conf/config.yaml")
 cli_cfg = OmegaConf.from_cli()
@@ -58,6 +58,7 @@ async def main():
             recipients=node["neighbors"],
             start_at=start_at,
             epsilon=cfg.agents.epsilon,
+            min_stable_ticks=cfg.agents.stable_ticks,
         )
         if i == 0:
             agent.is_reporter = True
