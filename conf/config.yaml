@@ -9,4 +9,4 @@ xmpp:
 agents:
   start_delay_sec: 3
   epsilon: 1e-4
-  stable_ticks: ${graph.n}
+  stable_ticks: 3
