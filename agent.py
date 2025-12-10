@@ -65,11 +65,6 @@ class ConsensusAgent(Agent):
             )
             await self.agent.stop()
 
-        async def on_start(self):
-            self.agent.logger.debug(
-                f"agent {self.agent.jid} started with initial value of {self.agent.value}"
-            )
-
         async def _check_convergence(self, new_value: float):
             if abs(new_value - self.agent.value) < self.agent.epsilon:
                 self.agent.stable_ticks += 1
